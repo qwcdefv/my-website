@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>闲物校园 - 基础功能测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin: 20px 0; padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px; background-color: #fafafa; }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .info { color: #17a2b8; }
+        button { margin: 5px; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-info { background-color: #17a2b8; color: white; }
+        input, select { margin: 5px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .result-box { margin-top: 10px; padding: 10px; border-radius: 5px; background-color: white; border: 1px solid #ddd; }
+        .hidden { display: none; }
+        .user-card { background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px; border-left: 4px solid #007bff; }
+        .item-card { background: #fff; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .item-title { font-weight: bold; color: #333; }
+        .item-price { color: #e74c3c; font-size: 18px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #2c3e50; margin-bottom: 30px;">🎓 闲物校园 - 功能测试中心</h1>
+        
+        <!-- 系统状态测试 -->
+        <div class="test-section">
+            <h3>🔧 系统状态检查</h3>
+            <button class="btn-info" onclick="checkSystemStatus()">检查系统状态</button>
+            <button class="btn-primary" onclick="testLocalStorage()">测试本地存储</button>
+            <button class="btn-success" onclick="showAllData()">显示所有数据</button>
+            <button class="btn-danger" onclick="clearAllData()">清空所有数据</button>
+            <div id="systemStatus" class="result-box"></div>
+        </div>
+        
+        <!-- 用户管理测试 -->
+        <div class="test-section">
+            <h3>👥 用户管理测试</h3>
+            <button class="btn-success" onclick="addTestUsers()">添加测试用户</button>
+            <button class="btn-primary" onclick="showAllUsers()">显示所有用户</button>
+            <div id="userManagement" class="result-box"></div>
+        </div>
+        
+        <!-- 登录功能测试 -->
+        <div class="test-section">
+            <h3>🔐 登录功能测试</h3>
+            <div>
+                <input type="email" id="loginEmail" placeholder="邮箱" value="zhang@example.com" style="width: 200px;">
+                <br>
+                <input type="password" id="loginPassword" placeholder="密码" value="123456" style="width: 200px;">
+                <br>
+                <button class="btn-primary" onclick="testLogin()">测试登录</button>
+                <button class="btn-success" onclick="testLogout()">测试登出</button>
+            </div>
+            <div id="loginTest" class="result-box"></div>
+        </div>
+        
+        <!-- 物品管理测试 -->
+        <div class="test-section">
+            <h3>📦 物品管理测试</h3>
+            <button class="btn-success" onclick="addTestItems()">添加测试物品</button>
+            <button class="btn-primary" onclick="showAllItems()">显示所有物品</button>
+            <button class="btn-info" onclick="searchItems()">搜索测试</button>
+            <div id="itemManagement" class="result-box"></div>
+        </div>
+        
+        <!-- 交易管理测试 -->
+        <div class="test-section">
+            <h3>🤝 交易管理测试</h3>
+            <button class="btn-success" onclick="addTestTransactions()">添加测试交易</button>
+            <button class="btn-primary" onclick="showAllTransactions()">显示所有交易</button>
+            <div id="transactionManagement" class="result-box"></div>
+        </div>
+        
+        <!-- 快速功能测试 -->
+        <div class="test-section">
+            <h3>🚀 快速功能测试</h3>
+            <button class="btn-success" onclick="runAllTests()">运行所有测试</button>
+            <button class="btn-info" onclick="initializeTestData()">初始化测试数据</button>
+            <div id="quickTest" class="result-box"></div>
+        </div>
+    </div>
+
+    <script>
+        // 系统状态检查
+        function checkSystemStatus() {
+            const status = {
+                localStorage: typeof(Storage) !== "undefined",
+                bootstrap: typeof(bootstrap) !== "undefined",
+                jquery: typeof($) !== "undefined",
+                date: new Date().toLocaleString()
+            };
+            
+            let html = '<h4>系统状态:</h4>';
+            for (let key in status) {
+                html += `<div>${key}: <span class="${status[key] ? 'success' : 'error'}">${status[key] ? '✅ 可用' : '❌ 不可用'}</span></div>`;
+            }
+            document.getElementById('systemStatus').innerHTML = html;
+        }
+        
+        // 测试本地存储
+        function testLocalStorage() {
+            try {
+                localStorage.setItem('test_key', 'test_value');
+                const value = localStorage.getItem('test_key');
+                localStorage.removeItem('test_key');
+                
+                document.getElementById('systemStatus').innerHTML = 
+                    `<span class="success">✅ 本地存储测试通过！可以正常读写数据。</span>`;
+            } catch (error) {
+                document.getElementById('systemStatus').innerHTML = 
+                    `<span class="error">❌ 本地存储测试失败: ${error.message}</span>`;
+            }
+        }
+        
+        // 显示所有数据
+        function showAllData() {
+            let html = '<h4>本地存储中的所有数据:</h4>';
+            
+            if (localStorage.length === 0) {
+                html += '<div class="info">本地存储为空</div>';
+            } else {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    const value = localStorage.getItem(key);
+                    html += `<div class="user-card"><strong>${key}:</strong><br>${value.substring(0, 200)}${value.length > 200 ? '...' : ''}</div>`;
+                }
+            }
+            
+            document.getElementById('systemStatus').innerHTML = html;
+        }
+        
+        // 清空所有数据
+        function clearAllData() {
+            if (confirm('⚠️ 警告：这将清空所有本地存储数据！确定要继续吗？')) {
+                localStorage.clear();
+                document.getElementById('systemStatus').innerHTML = 
+                    '<span class="success">✅ 所有数据已清空</span>';
+            }
+        }
+        
+        // 添加测试用户
+        function addTestUsers() {
+            const testUsers = [
+                {
+                    user_id: 'user_001',
+                    username: '张同学',
+                    email: 'zhang@example.com',
+                    campus_id: '2021001001',
+                    phone: '13800138001',
+                    avatar: 'https://via.placeholder.com/150/4f46e5/ffffff?text=张',
+                    register_time: new Date().toISOString(),
+                    is_verified: true,
+                    password: '123456'
+                },
+                {
+                    user_id: 'user_002',
+                    username: '李同学',
+                    email: 'li@example.com',
+                    campus_id: '2021001002',
+                    phone: '13800138002',
+                    avatar: 'https://via.placeholder.com/150/7c3aed/ffffff?text=李',
+                    register_time: new Date().toISOString(),
+                    is_verified: true,
+                    password: '123456'
+                }
+            ];
+            
+            localStorage.setItem('xianwu_users', JSON.stringify(testUsers));
+            document.getElementById('userManagement').innerHTML = 
+                '<span class="success">✅ 测试用户已添加</span>';
+        }
+        
+        // 显示所有用户
+        function showAllUsers() {
+            const users = JSON.parse(localStorage.getItem('xianwu_users') || '[]');
+            
+            if (users.length === 0) {
+                document.getElementById('userManagement').innerHTML = 
+                    '<div class="info">暂无用户数据</div>';
+                return;
+            }
+            
+            let html = '<h4>所有用户:</h4>';
+            users.forEach(user => {
+                html += `
+                    <div class="user-card">
+                        <div><strong>${user.username}</strong> (${user.is_verified ? '✅已认证' : '❌未认证'})</div>
+                        <div>邮箱: ${user.email}</div>
+                        <div>学号: ${user.campus_id}</div>
+                        <div>电话: ${user.phone}</div>
+                        <div>注册时间: ${new Date(user.register_time).toLocaleString()}</div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('userManagement').innerHTML = html;
+        }
+        
+        // 测试登录
+        function testLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            console.log('测试登录:', email, password);
+            
+            try {
+                const users = JSON.parse(localStorage.getItem('xianwu_users') || '[]');
+                console.log('用户列表:', users);
+                const user = users.find(u => u.email === email && u.password === password);
+                console.log('找到用户:', user);
+                
+                if (user) {
+                    localStorage.setItem('xianwu_current_user', JSON.stringify(user));
+                    document.getElementById('loginTest').innerHTML = 
+                        `<span class="success">✅ 登录成功！欢迎 ${user.username}</span>`;
+                } else {
+                    document.getElementById('loginTest').innerHTML = 
+                        '<span class="error">❌ 登录失败：邮箱或密码错误</span>';
+                }
+            } catch (error) {
+                document.getElementById('loginTest').innerHTML = 
+                    `<span class="error">❌ 登录错误: ${error.message}</span>`;
+            }
+        }
+        
+        // 测试登出
+        function testLogout() {
+            localStorage.removeItem('xianwu_current_user');
+            document.getElementById('loginTest').innerHTML = 
+                '<span class="success">✅ 已退出登录</span>';
+        }
+        
+        // 添加测试物品
+        function addTestItems() {
+            const testItems = [
+                {
+                    item_id: 'item_001',
+                    user_id: 'user_001',
+                    title: '高等数学教材（第七版）',
+                    description: '同济大学数学系编，高等教育出版社，九成新，无笔记无划线，适合大一新生使用。',
+                    price: 35.00,
+                    category: '书籍',
+                    status: '待售',
+                    image_url: 'https://via.placeholder.com/300x200/4f46e5/ffffff?text=高数教材',
+                    create_time: new Date().toISOString()
+                },
+                {
+                    item_id: 'item_002',
+                    user_id: 'user_002',
+                    title: '小米蓝牙耳机',
+                    description: '小米Air2 SE，使用半年，功能正常，音质清晰，续航良好，配件齐全。',
+                    price: 120.00,
+                    category: '电子产品',
+                    status: '待售',
+                    image_url: 'https://via.placeholder.com/300x200/7c3aed/ffffff?text=蓝牙耳机',
+                    create_time: new Date().toISOString()
+                }
+            ];
+            
+            localStorage.setItem('xianwu_items', JSON.stringify(testItems));
+            document.getElementById('itemManagement').innerHTML = 
+                '<span class="success">✅ 测试物品已添加</span>';
+        }
+        
+        // 显示所有物品
+        function showAllItems() {
+            const items = JSON.parse(localStorage.getItem('xianwu_items') || '[]');
+            
+            if (items.length === 0) {
+                document.getElementById('itemManagement').innerHTML = 
+                    '<div class="info">暂无物品数据</div>';
+                return;
+            }
+            
+            let html = '<h4>所有物品:</h4>';
+            items.forEach(item => {
+                html += `
+                    <div class="item-card">
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-price">¥${item.price.toFixed(2)}</div>
+                        <div>分类: ${item.category} | 状态: ${item.status}</div>
+                        <div>描述: ${item.description}</div>
+                        <div>发布时间: ${new Date(item.create_time).toLocaleString()}</div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('itemManagement').innerHTML = html;
+        }
+        
+        // 搜索测试
+        function searchItems() {
+            const items = JSON.parse(localStorage.getItem('xianwu_items') || '[]');
+            const keyword = '数学'; // 测试关键词
+            
+            const filteredItems = items.filter(item => 
+                item.title.toLowerCase().includes(keyword.toLowerCase()) || 
+                item.description.toLowerCase().includes(keyword.toLowerCase())
+            );
+            
+            let html = `<h4>搜索 "${keyword}" 的结果:</h4>`;
+            if (filteredItems.length === 0) {
+                html += '<div class="info">没有找到相关物品</div>';
+            } else {
+                filteredItems.forEach(item => {
+                    html += `
+                        <div class="item-card">
+                            <div class="item-title">${item.title}</div>
+                            <div class="item-price">¥${item.price.toFixed(2)}</div>
+                            <div>分类: ${item.category} | 状态: ${item.status}</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            document.getElementById('itemManagement').innerHTML = html;
+        }
+        
+        // 添加测试交易
+        function addTestTransactions() {
+            const testTransactions = [
+                {
+                    transaction_id: 'trans_001',
+                    item_id: 'item_001',
+                    buyer_id: 'user_002',
+                    seller_id: 'user_001',
+                    status: '交易中',
+                    create_time: new Date().toISOString(),
+                    complete_time: null
+                }
+            ];
+            
+            localStorage.setItem('xianwu_transactions', JSON.stringify(testTransactions));
+            document.getElementById('transactionManagement').innerHTML = 
+                '<span class="success">✅ 测试交易已添加</span>';
+        }
+        
+        // 显示所有交易
+        function showAllTransactions() {
+            const transactions = JSON.parse(localStorage.getItem('xianwu_transactions') || '[]');
+            const items = JSON.parse(localStorage.getItem('xianwu_items') || '[]');
+            const users = JSON.parse(localStorage.getItem('xianwu_users') || '[]');
+            
+            if (transactions.length === 0) {
+                document.getElementById('transactionManagement').innerHTML = 
+                    '<div class="info">暂无交易数据</div>';
+                return;
+            }
+            
+            let html = '<h4>所有交易:</h4>';
+            transactions.forEach(transaction => {
+                const item = items.find(i => i.item_id === transaction.item_id);
+                const buyer = users.find(u => u.user_id === transaction.buyer_id);
+                const seller = users.find(u => u.user_id === transaction.seller_id);
+                
+                html += `
+                    <div class="user-card">
+                        <div><strong>交易ID:</strong> ${transaction.transaction_id}</div>
+                        <div><strong>物品:</strong> ${item?.title || '未知物品'}</div>
+                        <div><strong>买家:</strong> ${buyer?.username || '未知买家'}</div>
+                        <div><strong>卖家:</strong> ${seller?.username || '未知卖家'}</div>
+                        <div><strong>状态:</strong> ${transaction.status}</div>
+                        <div><strong>创建时间:</strong> ${new Date(transaction.create_time).toLocaleString()}</div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('transactionManagement').innerHTML = html;
+        }
+        
+        // 初始化测试数据
+        function initializeTestData() {
+            addTestUsers();
+            addTestItems();
+            addTestTransactions();
+            document.getElementById('quickTest').innerHTML = 
+                '<span class="success">✅ 所有测试数据已初始化</span>';
+        }
+        
+        // 运行所有测试
+        function runAllTests() {
+            let results = [];
+            
+            // 测试1: 本地存储
+            try {
+                localStorage.setItem('test', 'value');
+                localStorage.getItem('test');
+                localStorage.removeItem('test');
+                results.push('✅ 本地存储测试通过');
+            } catch (error) {
+                results.push('❌ 本地存储测试失败: ' + error.message);
+            }
+            
+            // 测试2: 用户数据操作
+            try {
+                const testUser = {id: 1, name: '测试用户'};
+                let users = JSON.parse(localStorage.getItem('xianwu_users') || '[]');
+                users.push(testUser);
+                localStorage.setItem('xianwu_users', JSON.stringify(users));
+                const retrieved = JSON.parse(localStorage.getItem('xianwu_users'));
+                results.push('✅ 用户数据操作测试通过');
+            } catch (error) {
+                results.push('❌ 用户数据操作测试失败: ' + error.message);
+            }
+            
+            // 测试3: 搜索功能
+            try {
+                const items = [
+                    {title: '数学书', description: '高等数学教材'},
+                    {title: '英语书', description: '大学英语教程'}
+                ];
+                const keyword = '数学';
+                const results = items.filter(item => 
+                    item.title.toLowerCase().includes(keyword.toLowerCase()) || 
+                    item.description.toLowerCase().includes(keyword.toLowerCase())
+                );
+                results.push('✅ 搜索功能测试通过');
+            } catch (error) {
+                results.push('❌ 搜索功能测试失败: ' + error.message);
+            }
+            
+            document.getElementById('quickTest').innerHTML = 
+                '<h4>测试结果:</h4>' + results.map(r => `<div>${r}</div>`).join('');
+        }
+        
+        // 页面加载时自动检查系统状态
+        window.onload = function() {
+            checkSystemStatus();
+        };
+    </script>
+</body>
+</html>

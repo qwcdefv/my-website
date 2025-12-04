@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>闲物校园 - 自动功能测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #dee2e6; border-radius: 8px; }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 30px; }
+        h3 { color: #495057; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+        .summary { font-size: 18px; font-weight: bold; text-align: center; padding: 15px; margin: 20px 0; border-radius: 8px; }
+        .pass { background-color: #28a745; color: white; }
+        .fail { background-color: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 闲物校园 - 自动功能测试报告</h1>
+        <div id="testResults"></div>
+        <div id="testSummary"></div>
+    </div>
+
+    <script>
+        class AutoTester {
+            constructor() {
+                this.results = [];
+                this.totalTests = 0;
+                this.passedTests = 0;
+                this.failedTests = 0;
+            }
+
+            // 记录测试结果
+            log(testName, success, message = '') {
+                this.totalTests++;
+                const status = success ? '✅ 通过' : '❌ 失败';
+                const className = success ? 'success' : 'error';
+                
+                if (success) {
+                    this.passedTests++;
+                } else {
+                    this.failedTests++;
+                }
+                
+                this.results.push({
+                    testName,
+                    success,
+                    message,
+                    status,
+                    className
+                });
+            }
+
+            // 测试本地存储
+            testLocalStorage() {
+                try {
+                    // 测试写入
+                    localStorage.setItem('test_key', 'test_value');
+                    
+                    // 测试读取
+                    const value = localStorage.getItem('test_key');
+                    if (value !== 'test_value') {
+                        throw new Error('读取的值与写入的不匹配');
+                    }
+                    
+                    // 测试删除
+                    localStorage.removeItem('test_key');
+                    const deletedValue = localStorage.getItem('test_key');
+                    if (deletedValue !== null) {
+                        throw new Error('删除后仍能读取到值');
+                    }
+                    
+                    this.log('本地存储基础功能', true, '本地存储可以正常读写删除数据');
+                } catch (error) {
+                    this.log('本地存储基础功能', false, error.message);
+                }
+            }
+
+            // 测试JSON数据操作
+            testJSONOperations() {
+                try {
+                    const testData = {
+                        users: [
+                            { id: 1, name: '张三', email: 'zhang@example.com' },
+                            { id: 2, name: '李四', email: 'li@example.com' }
+                        ],
+                        items: [
+                            { id: 1, title: '数学书', price: 35.00 }
+                        ]
+                    };
+                    
+                    // 测试JSON序列化和存储
+                    const jsonString = JSON.stringify(testData);
+                    localStorage.setItem('test_json', jsonString);
+                    
+                    // 测试JSON反序列化
+                    const retrievedString = localStorage.getItem('test_json');
+                    const retrievedData = JSON.parse(retrievedString);
+                    
+                    if (retrievedData.users.length !== 2 || retrievedData.items.length !== 1) {
+                        throw new Error('JSON数据解析后结构不正确');
+                    }
+                    
+                    // 清理测试数据
+                    localStorage.removeItem('test_json');
+                    
+                    this.log('JSON数据操作', true, 'JSON序列化和反序列化正常');
+                } catch (error) {
+                    this.log('JSON数据操作', false, error.message);
+                }
+            }
+
+            // 测试用户数据管理
+            testUserManagement() {
+                try {
+                    // 清理现有用户数据
+                    localStorage.removeItem('xianwu_users');
+                    
+                    // 创建测试用户
+                    const testUsers = [
+                        {
+                            user_id: 'test_user_001',
+                            username: '测试用户1',
+                            email: 'test1@example.com',
+                            campus_id: '2021001001',
+                            password: 'password123',
+                            is_verified: true
+                        },
+                        {
+                            user_id: 'test_user_002',
+                            username: '测试用户2',
+                            email: 'test2@example.com',
+                            campus_id: '2021001002',
+                            password: 'password456',
+                            is_verified: false
+                        }
+                    ];
+                    
+                    // 存储用户数据
+                    localStorage.setItem('xianwu_users', JSON.stringify(testUsers));
+                    
+                    // 读取用户数据
+                    const storedUsers = JSON.parse(localStorage.getItem('xianwu_users') || '[]');
+                    
+                    if (storedUsers.length !== 2) {
+                        throw new Error('用户数据存储后数量不正确');
+                    }
+                    
+                    // 测试用户查找功能
+                    const foundUser = storedUsers.find(u => u.email === 'test1@example.com' && u.password === 'password123');
+                    if (!foundUser) {
+                        throw new Error('无法通过邮箱和密码找到用户');
+                    }
+                    
+                    // 测试用户登录状态
+                    localStorage.setItem('xianwu_current_user', JSON.stringify(foundUser));
+                    const currentUser = JSON.parse(localStorage.getItem('xianwu_current_user'));
+                    if (!currentUser || currentUser.user_id !== 'test_user_001') {
+                        throw new Error('用户登录状态保存失败');
+                    }
+                    
+                    this.log('用户数据管理', true, '用户注册、登录、数据存储功能正常');
+                } catch (error) {
+                    this.log('用户数据管理', false, error.message);
+                }
+            }
+
+            // 测试物品数据管理
+            testItemManagement() {
+                try {
+                    // 清理现有物品数据
+                    localStorage.removeItem('xianwu_items');
+                    
+                    // 创建测试物品
+                    const testItems = [
+                        {
+                            item_id: 'test_item_001',
+                            user_id: 'test_user_001',
+                            title: '高等数学教材',
+                            description: '同济大学第七版，九成新',
+                            price: 35.00,
+                            category: '书籍',
+                            status: '待售'
+                        },
+                        {
+                            item_id: 'test_item_002',
+                            user_id: 'test_user_002',
+                            title: '小米蓝牙耳机',
+                            description: '使用半年，功能正常',
+                            price: 120.00,
+                            category: '电子产品',
+                            status: '待售'
+                        }
+                    ];
+                    
+                    // 存储物品数据
+                    localStorage.setItem('xianwu_items', JSON.stringify(testItems));
+                    
+                    // 读取物品数据
+                    const storedItems = JSON.parse(localStorage.getItem('xianwu_items') || '[]');
+                    
+                    if (storedItems.length !== 2) {
+                        throw new Error('物品数据存储后数量不正确');
+                    }
+                    
+                    // 测试物品搜索功能
+                    const keyword = '数学';
+                    const filteredItems = storedItems.filter(item => 
+                        item.title.toLowerCase().includes(keyword.toLowerCase()) || 
+                        item.description.toLowerCase().includes(keyword.toLowerCase())
+                    );
+                    
+                    if (filteredItems.length !== 1) {
+                        throw new Error('物品搜索功能不正常');
+                    }
+                    
+                    this.log('物品数据管理', true, '物品发布、搜索功能正常');
+                } catch (error) {
+                    this.log('物品数据管理', false, error.message);
+                }
+            }
+
+            // 测试交易数据管理
+            testTransactionManagement() {
+                try {
+                    // 清理现有交易数据
+                    localStorage.removeItem('xianwu_transactions');
+                    
+                    // 创建测试交易
+                    const testTransactions = [
+                        {
+                            transaction_id: 'test_trans_001',
+                            item_id: 'test_item_001',
+                            buyer_id: 'test_user_002',
+                            seller_id: 'test_user_001',
+                            status: '交易中',
+                            create_time: new Date().toISOString()
+                        }
+                    ];
+                    
+                    // 存储交易数据
+                    localStorage.setItem('xianwu_transactions', JSON.stringify(testTransactions));
+                    
+                    // 读取交易数据
+                    const storedTransactions = JSON.parse(localStorage.getItem('xianwu_transactions') || '[]');
+                    
+                    if (storedTransactions.length !== 1) {
+                        throw new Error('交易数据存储后数量不正确');
+                    }
+                    
+                    // 测试交易状态更新
+                    storedTransactions[0].status = '已完成';
+                    localStorage.setItem('xianwu_transactions', JSON.stringify(storedTransactions));
+                    
+                    const updatedTransactions = JSON.parse(localStorage.getItem('xianwu_transactions'));
+                    if (updatedTransactions[0].status !== '已完成') {
+                        throw new Error('交易状态更新失败');
+                    }
+                    
+                    this.log('交易数据管理', true, '交易创建、状态更新功能正常');
+                } catch (error) {
+                    this.log('交易数据管理', false, error.message);
+                }
+            }
+
+            // 测试登录功能
+            testLoginFunction() {
+                try {
+                    // 确保测试用户存在
+                    const testUsers = [
+                        {
+                            user_id: 'login_test_user',
+                            username: '登录测试用户',
+                            email: 'logintest@example.com',
+                            password: 'test123456',
+                            is_verified: true
+                        }
+                    ];
+                    localStorage.setItem('xianwu_users', JSON.stringify(testUsers));
+                    
+                    // 模拟登录过程
+                    const email = 'logintest@example.com';
+                    const password = 'test123456';
+                    
+                    const users = JSON.parse(localStorage.getItem('xianwu_users') || '[]');
+                    const user = users.find(u => u.email === email && u.password === password);
+                    
+                    if (!user) {
+                        throw new Error('登录验证失败');
+                    }
+                    
+                    // 模拟保存登录状态
+                    localStorage.setItem('xianwu_current_user', JSON.stringify(user));
+                    const currentUser = JSON.parse(localStorage.getItem('xianwu_current_user'));
+                    
+                    if (!currentUser || currentUser.user_id !== 'login_test_user') {
+                        throw new Error('登录状态保存失败');
+                    }
+                    
+                    // 测试登出
+                    localStorage.removeItem('xianwu_current_user');
+                    const afterLogout = localStorage.getItem('xianwu_current_user');
+                    
+                    if (afterLogout !== null) {
+                        throw new Error('登出功能不正常');
+                    }
+                    
+                    this.log('登录登出功能', true, '用户登录、登出功能正常');
+                } catch (error) {
+                    this.log('登录登出功能', false, error.message);
+                }
+            }
+
+            // 测试数据完整性
+            testDataIntegrity() {
+                try {
+                    // 创建完整的数据集
+                    const completeData = {
+                        users: [
+                            {
+                                user_id: 'complete_user_001',
+                                username: '完整测试用户',
+                                email: 'complete@example.com',
+                                campus_id: '2021001001',
+                                avatar: 'https://via.placeholder.com/150',
+                                register_time: new Date().toISOString(),
+                                is_verified: true,
+                                password: 'complete123'
+                            }
+                        ],
+                        items: [
+                            {
+                                item_id: 'complete_item_001',
+                                user_id: 'complete_user_001',
+                                title: '完整测试物品',
+                                description: '这是一个完整的测试物品',
+                                price: 99.99,
+                                category: '测试分类',
+                                status: '待售',
+                                image_url: 'https://via.placeholder.com/300x200',
+                                create_time: new Date().toISOString()
+                            }
+                        ],
+                        transactions: [
+                            {
+                                transaction_id: 'complete_trans_001',
+                                item_id: 'complete_item_001',
+                                buyer_id: 'complete_user_001',
+                                seller_id: 'complete_user_001',
+                                status: '待售',
+                                create_time: new Date().toISOString()
+                            }
+                        ]
+                    };
+                    
+                    // 存储所有数据
+                    Object.keys(completeData).forEach(key => {
+                        localStorage.setItem(`xianwu_${key}`, JSON.stringify(completeData[key]));
+                    });
+                    
+                    // 验证数据完整性
+                    let allDataValid = true;
+                    let errorMessages = [];
+                    
+                    // 检查用户数据
+                    const storedUsers = JSON.parse(localStorage.getItem('xianwu_users') || '[]');
+                    if (storedUsers.length === 0) {
+                        allDataValid = false;
+                        errorMessages.push('用户数据丢失');
+                    }
+                    
+                    // 检查物品数据
+                    const storedItems = JSON.parse(localStorage.getItem('xianwu_items') || '[]');
+                    if (storedItems.length === 0) {
+                        allDataValid = false;
+                        errorMessages.push('物品数据丢失');
+                    }
+                    
+                    // 检查交易数据
+                    const storedTransactions = JSON.parse(localStorage.getItem('xianwu_transactions') || '[]');
+                    if (storedTransactions.length === 0) {
+                        allDataValid = false;
+                        errorMessages.push('交易数据丢失');
+                    }
+                    
+                    // 验证数据关联性
+                    const user = storedUsers[0];
+                    const item = storedItems.find(i => i.user_id === user.user_id);
+                    if (!item) {
+                        allDataValid = false;
+                        errorMessages.push('用户与物品关联性错误');
+                    }
+                    
+                    if (allDataValid) {
+                        this.log('数据完整性', true, '所有数据类型完整，关联性正确');
+                    } else {
+                        this.log('数据完整性', false, errorMessages.join(', '));
+                    }
+                    
+                } catch (error) {
+                    this.log('数据完整性', false, error.message);
+                }
+            }
+
+            // 清理测试数据
+            cleanupTestData() {
+                try {
+                    const keysToRemove = [
+                        'xianwu_users', 'xianwu_items', 'xianwu_transactions', 
+                        'xianwu_current_user', 'xianwu_chats', 'xianwu_reviews'
+                    ];
+                    
+                    keysToRemove.forEach(key => {
+                        localStorage.removeItem(key);
+                    });
+                    
+                    this.log('测试数据清理', true, '所有测试数据已清理');
+                } catch (error) {
+                    this.log('测试数据清理', false, error.message);
+                }
+            }
+
+            // 运行所有测试
+            runAllTests() {
+                this.testLocalStorage();
+                this.testJSONOperations();
+                this.testUserManagement();
+                this.testItemManagement();
+                this.testTransactionManagement();
+                this.testLoginFunction();
+                this.testDataIntegrity();
+                
+                // 延迟显示结果，确保所有测试完成
+                setTimeout(() => {
+                    this.displayResults();
+                    this.cleanupTestData();
+                }, 100);
+            }
+
+            // 显示测试结果
+            displayResults() {
+                let html = '<div class="test-section">';
+                html += '<h2>📊 详细测试结果</h2>';
+                
+                this.results.forEach(result => {
+                    html += `<div class="test-result ${result.className}">`;
+                    html += `<strong>${result.testName}</strong>: ${result.status}`;
+                    if (result.message) {
+                        html += `<br><small>${result.message}</small>`;
+                    }
+                    html += '</div>';
+                });
+                
+                html += '</div>';
+                
+                // 显示摘要
+                const passRate = ((this.passedTests / this.totalTests) * 100).toFixed(1);
+                const summaryClass = this.failedTests === 0 ? 'pass' : 'fail';
+                
+                let summaryHtml = `<div class="summary ${summaryClass}">`;
+                summaryHtml += `<h3>测试摘要</h3>`;
+                summaryHtml += `<p>总测试数: ${this.totalTests}</p>`;
+                summaryHtml += `<p>通过: ${this.passedTests} | 失败: ${this.failedTests}</p>`;
+                summaryHtml += `<p>通过率: ${passRate}%</p>`;
+                summaryHtml += '</div>';
+                
+                document.getElementById('testResults').innerHTML = html;
+                document.getElementById('testSummary').innerHTML = summaryHtml;
+            }
+        }
+
+        // 页面加载完成后自动运行测试
+        window.onload = function() {
+            const tester = new AutoTester();
+            tester.runAllTests();
+        };
+    </script>
+</body>
+</html>

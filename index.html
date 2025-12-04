@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>闲物 - 校园二手交易平台</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="#" onclick="showHome()">
+                <i class="bi bi-recycle me-2"></i>闲物
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showHome()">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPublish()">发布物品</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showMyItems()">我的物品</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showTransactions()">交易管理</a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex" id="userSection">
+                    <!-- 用户登录/注册按钮将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="container my-4">
+        <!-- 首页 -->
+        <div id="homePage" class="page-content">
+            <!-- 搜索栏 -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" id="searchKeyword" placeholder="搜索物品...">
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="categoryFilter">
+                                        <option value="">所有类别</option>
+                                        <option value="书籍">书籍</option>
+                                        <option value="电子产品">电子产品</option>
+                                        <option value="生活用品">生活用品</option>
+                                        <option value="服装鞋帽">服装鞋帽</option>
+                                        <option value="运动器材">运动器材</option>
+                                        <option value="乐器">乐器</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="priceFilter">
+                                        <option value="">所有价格</option>
+                                        <option value="0-50">0-50元</option>
+                                        <option value="50-100">50-100元</option>
+                                        <option value="100-200">100-200元</option>
+                                        <option value="200+">200元以上</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-primary w-100" onclick="searchItems()">
+                                        <i class="bi bi-search me-1"></i>搜索
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 物品列表 -->
+            <div id="itemsList" class="row">
+                <!-- 物品卡片将在这里动态生成 -->
+            </div>
+        </div>
+
+        <!-- 发布物品页面 -->
+        <div id="publishPage" class="page-content d-none">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>发布物品</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="publishForm">
+                                <div class="mb-3">
+                                    <label class="form-label">物品标题</label>
+                                    <input type="text" class="form-control" id="itemTitle" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">物品描述</label>
+                                    <textarea class="form-control" id="itemDescription" rows="4" required></textarea>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">价格（元）</label>
+                                        <input type="number" class="form-control" id="itemPrice" min="0" step="0.01" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">类别</label>
+                                        <select class="form-select" id="itemCategory" required>
+                                            <option value="">选择类别</option>
+                                            <option value="书籍">书籍</option>
+                                            <option value="电子产品">电子产品</option>
+                                            <option value="生活用品">生活用品</option>
+                                            <option value="服装鞋帽">服装鞋帽</option>
+                                            <option value="运动器材">运动器材</option>
+                                            <option value="乐器">乐器</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">上传图片</label>
+                                    <input type="file" class="form-control" id="itemImage" accept="image/*">
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-upload me-2"></i>发布物品
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我的物品页面 -->
+        <div id="myItemsPage" class="page-content d-none">
+            <div class="row">
+                <div class="col-12">
+                    <h4 class="mb-4"><i class="bi bi-box me-2"></i>我的物品</h4>
+                    <div id="myItemsList" class="row">
+                        <!-- 我的物品列表将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 交易管理页面 -->
+        <div id="transactionsPage" class="page-content d-none">
+            <div class="row">
+                <div class="col-12">
+                    <h4 class="mb-4"><i class="bi bi-arrow-left-right me-2"></i>交易管理</h4>
+                    <ul class="nav nav-pills mb-3" id="transactionTabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="pill" href="#buyingTab">我购买的</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#sellingTab">我出售的</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="buyingTab">
+                            <div id="buyingTransactions">
+                                <!-- 购买的交易列表 -->
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="sellingTab">
+                            <div id="sellingTransactions">
+                                <!-- 出售的交易列表 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 聊天页面 -->
+        <div id="chatPage" class="page-content d-none">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">聊天列表</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chatList" class="list-group list-group-flush">
+                                <!-- 聊天列表将在这里动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0" id="currentChatTitle">选择一个聊天</h5>
+                            <button class="btn btn-sm btn-light" onclick="closeChat()">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <div class="card-body" style="height: 400px; overflow-y: auto;">
+                            <div id="chatMessages">
+                                <!-- 聊天消息将在这里显示 -->
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="messageInput" placeholder="输入消息...">
+                                <button class="btn btn-primary" onclick="sendMessage()">
+                                    <i class="bi bi-send"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 登录模态框 -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-box-arrow-in-right me-2"></i>登录</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label">邮箱</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">密码</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">登录</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer text-center">
+                    <small class="text-muted">还没有账号？<a href="#" onclick="showRegister()">立即注册</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>注册</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label class="form-label">昵称</label>
+                            <input type="text" class="form-control" id="registerUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">邮箱</label>
+                            <input type="email" class="form-control" id="registerEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">学号</label>
+                            <input type="text" class="form-control" id="registerCampusId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">密码</label>
+                            <input type="password" class="form-control" id="registerPassword" required>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">注册</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer text-center">
+                    <small class="text-muted">已有账号？<a href="#" onclick="showLogin()">立即登录</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 校园身份验证模态框 -->
+    <div class="modal fade" id="verifyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-shield-check me-2"></i>校园身份验证</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="verifyForm">
+                        <div class="mb-3">
+                            <label class="form-label">学号</label>
+                            <input type="text" class="form-control" id="verifyCampusId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">学校邮箱</label>
+                            <input type="email" class="form-control" id="verifyEmail" placeholder="xxx@school.edu.cn" required>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            请输入您的学号和学校邮箱进行身份验证
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">提交验证</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 物品详情模态框 -->
+    <div class="modal fade" id="itemDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemDetailTitle">物品详情</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="itemDetailContent">
+                        <!-- 物品详情内容将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 评价模态框 -->
+    <div class="modal fade" id="ratingModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">评价交易</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="ratingForm">
+              <div class="mb-3">
+                <label class="form-label">评分</label>
+                <div class="rating-stars" id="ratingStars">
+                  <span class="star" data-rating="1">★</span>
+                  <span class="star" data-rating="2">★</span>
+                  <span class="star" data-rating="3">★</span>
+                  <span class="star" data-rating="4">★</span>
+                  <span class="star" data-rating="5">★</span>
+                </div>
+                <input type="hidden" id="ratingValue" value="0">
+              </div>
+              <div class="mb-3">
+                <label for="ratingComment" class="form-label">评价内容</label>
+                <textarea class="form-control" id="ratingComment" rows="3" placeholder="请输入您的评价..."></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">交易ID</label>
+                <input type="text" class="form-control" id="ratingTransactionId" readonly>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" onclick="submitRating()">提交评价</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 应用主JS -->
+    <script src="js/app.js"></script>
+</body>
+</html>

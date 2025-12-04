@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>闲物校园 - 简单测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>闲物校园 - 功能测试</h1>
+    
+    <div class="test-section">
+        <h2>本地存储测试</h2>
+        <button onclick="testLocalStorage()">测试本地存储</button>
+        <button onclick="showLocalStorage()">显示本地存储数据</button>
+        <button onclick="clearLocalStorage()">清空本地存储</button>
+        <div id="storageResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>用户数据测试</h2>
+        <button onclick="addTestUser()">添加测试用户</button>
+        <button onclick="showUsers()">显示用户数据</button>
+        <div id="userResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>登录功能测试</h2>
+        <input type="email" id="testEmail" placeholder="测试邮箱: zhang@example.com" style="width: 200px; margin: 5px;">
+        <br>
+        <input type="password" id="testPassword" placeholder="测试密码: 123456" style="width: 200px; margin: 5px;">
+        <br>
+        <button onclick="testLogin()">测试登录</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // 测试本地存储
+        function testLocalStorage() {
+            try {
+                localStorage.setItem('test', 'hello');
+                const value = localStorage.getItem('test');
+                document.getElementById('storageResult').innerHTML = 
+                    `<span class="success">本地存储工作正常: ${value}</span>`;
+                localStorage.removeItem('test');
+            } catch (error) {
+                document.getElementById('storageResult').innerHTML = 
+                    `<span class="error">本地存储错误: ${error.message}</span>`;
+            }
+        }
+        
+        // 显示本地存储数据
+        function showLocalStorage() {
+            try {
+                let html = '<h3>本地存储数据:</h3>';
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    const value = localStorage.getItem(key);
+                    html += `<div><strong>${key}:</strong> ${value.substring(0, 100)}...</div>`;
+                }
+                document.getElementById('storageResult').innerHTML = html;
+            } catch (error) {
+                document.getElementById('storageResult').innerHTML = 
+                    `<span class="error">显示数据错误: ${error.message}</span>`;
+            }
+        }
+        
+        // 清空本地存储
+        function clearLocalStorage() {
+            if (confirm('确定要清空所有本地存储数据吗？')) {
+                localStorage.clear();
+                document.getElementById('storageResult').innerHTML = 
+                    '<span class="success">本地存储已清空</span>';
+            }
+        }
+        
+        // 添加测试用户
+        function addTestUser() {
+            try {
+                const testUser = {
+                    user_id: 'test_user_001',
+                    username: '测试用户',
+                    email: 'test@example.com',
+                    campus_id: '2021001001',
+                    phone: '13800138001',
+                    avatar: 'https://via.placeholder.com/150/4f46e5/ffffff?text=测',
+                    register_time: new Date().toISOString(),
+                    is_verified: true,
+                    password: '123456'
+                };
+                
+                let users = JSON.parse(localStorage.getItem('xianwu_users') || '[]');
+                users.push(testUser);
+                localStorage.setItem('xianwu_users', JSON.stringify(users));
+                
+                document.getElementById('userResult').innerHTML = 
+                    '<span class="success">测试用户已添加</span>';
+            } catch (error) {
+                document.getElementById('userResult').innerHTML = 
+                    `<span class="error">添加用户错误: ${error.message}</span>`;
+            }
+        }
+        
+        // 显示用户数据
+        function showUsers() {
+            try {
+                const users = JSON.parse(localStorage.getItem('xianwu_users') || '[]');
+                let html = '<h3>用户数据:</h3>';
+                users.forEach(user => {
+                    html += `<div><strong>${user.username}</strong> - ${user.email} - ${user.password}</div>`;
+                });
+                document.getElementById('userResult').innerHTML = html;
+            } catch (error) {
+                document.getElementById('userResult').innerHTML = 
+                    `<span class="error">显示用户错误: ${error.message}</span>`;
+            }
+        }
+        
+        // 测试登录
+        function testLogin() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            console.log('测试登录:', email, password);
+            
+            try {
+                const users = JSON.parse(localStorage.getItem('xianwu_users') || '[]');
+                console.log('用户列表:', users);
+                const user = users.find(u => u.email === email && u.password === password);
+                console.log('找到用户:', user);
+                
+                if (user) {
+                    localStorage.setItem('xianwu_current_user', JSON.stringify(user));
+                    document.getElementById('loginResult').innerHTML = 
+                        `<span class="success">登录成功！欢迎 ${user.username}</span>`;
+                } else {
+                    document.getElementById('loginResult').innerHTML = 
+                        '<span class="error">登录失败：邮箱或密码错误</span>';
+                }
+            } catch (error) {
+                document.getElementById('loginResult').innerHTML = 
+                    `<span class="error">登录错误: ${error.message}</span>`;
+            }
+        }
+        
+        // 页面加载时测试本地存储
+        window.onload = function() {
+            testLocalStorage();
+        };
+    </script>
+</body>
+</html>
